@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEO Word Optimizer - B.Tech DAA Mini-Project</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+    <!-- Top Navigation Header -->
+    <header class="app-header">
+        <div class="header-container">
+            <div class="brand">
+                <div class="brand-icon">&#x2699;</div>
+                <div>
+                    <h1>SEO Word Optimizer</h1>
+                    <p class="subtitle">Design & Analysis of Algorithms (DAA) Academic Mini-Project</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button type="button" class="btn btn-secondary btn-sm" id="btn-load-sample">
+                    &#x1F4CB; Load Sample Article
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" id="btn-load-drafts">
+                    &#x1F4D6; Load Drafts Sample
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Algorithms Badge Bar -->
+    <div class="algo-bar">
+        <div class="algo-bar-inner">
+            <span class="algo-title">&#x1F9E0; Implemented DAA Modules:</span>
+            <span class="algo-pill"><span class="pill-dot"></span> <strong>Binary Search</strong> [O(log n)]</span>
+            <span class="algo-pill"><span class="pill-dot"></span> <strong>Merge Sort vs Quick Sort</strong> [O(n log n)]</span>
+            <span class="algo-pill"><span class="pill-dot"></span> <strong>LCS Dynamic Programming</strong> [O(m &times; n)]</span>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <main class="main-container">
+
+        <!-- Global Alert / Status Box -->
+        <div id="status-toast" class="toast hidden"></div>
+
+        <!-- ============================================================== -->
+        <!-- SECTION A: CONTENT ANALYZER -->
+        <!-- ============================================================== -->
+        <section class="card section-card" id="section-analyzer">
+            <div class="card-header">
+                <div class="card-title-group">
+                    <span class="section-number">A</span>
+                    <div>
+                        <h2>Content Analyzer & SEO Text Metrics</h2>
+                        <p class="section-desc">Calculates descriptive token metrics, occurrence frequencies, keyword density, and structural checks.</p>
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <button type="button" class="btn btn-outline btn-sm" id="btn-clear-article">Clear</button>
+                    <button type="button" class="btn btn-primary" id="btn-analyze">&#x25B6; Analyze Content</button>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <form id="article-form" onsubmit="return false;">
+                    <div class="form-row">
+                        <div class="form-group flex-2">
+                            <label for="input-title">Article Title</label>
+                            <input type="text" id="input-title" class="form-control" placeholder="e.g. Best Cybersecurity Tools for Beginners" />
+                        </div>
+                        <div class="form-group flex-1">
+                            <label for="input-keyword">Target Keyword / Phrase</label>
+                            <input type="text" id="input-keyword" class="form-control" placeholder="e.g. cybersecurity tools" />
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group flex-1">
+                            <label for="input-intro">Introduction</label>
+                            <textarea id="input-intro" class="form-control" rows="2" placeholder="Introductory paragraph introducing the key theme..."></textarea>
+                        </div>
+                        <div class="form-group flex-1">
+                            <label for="input-headings">Headings (one heading per line)</label>
+                            <textarea id="input-headings" class="form-control" rows="2" placeholder="Top cybersecurity tools&#10;How to choose security tools"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="input-body">Article Body Text *</label>
+                        <textarea id="input-body" class="form-control" rows="5" placeholder="Paste or type the full article content here..."></textarea>
+                    </div>
+                </form>
+
+                <!-- Analysis Results (Hidden until analyzed) -->
+                <div id="analyzer-results" class="results-container hidden">
+                    
+                    <!-- Text Metrics Grid -->
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <span class="metric-label">Total Words</span>
+                            <span class="metric-value" id="val-word-count">0</span>
+                            <span class="metric-sub">Tokenized words</span>
+                        </div>
+                        <div class="metric-card">
+                            <span class="metric-label">Characters</span>
+                            <span class="metric-value" id="val-char-count">0</span>
+                            <span class="metric-sub" id="val-char-no-space">0 without spaces</span>
+                        </div>
+                        <div class="metric-card">
+                            <span class="metric-label">Sentences</span>
+                            <span class="metric-value" id="val-sentence-count">0</span>
+                            <span class="metric-sub">Terminal boundaries</span>
+                        </div>
+                        <div class="metric-card">
+                            <span class="metric-label">Paragraphs</span>
+                            <span class="metric-value" id="val-paragraph-count">0</span>
+                            <span class="metric-sub">Double line breaks</span>
+                        </div>
+                        <div class="metric-card highlight-card">
+                            <span class="metric-label">Target Keyword Count</span>
+                            <span class="metric-value" id="val-kw-count">0</span>
+                            <span class="metric-sub" id="val-kw-query">None</span>
+                        </div>
+                        <div class="metric-card highlight-card">
+                            <span class="metric-label">Target Keyword Density</span>
+                            <span class="metric-value" id="val-kw-density">0.00%</span>
+                            <span class="metric-sub">(Count / Words) &times; 100</span>
+                        </div>
+                    </div>
+
+                    <!-- Presence Check Badges -->
+                    <div class="presence-box">
+                        <h3>Structural Placement Checks</h3>
+                        <div class="presence-badges">
+                            <div class="badge-item" id="badge-title">
+                                <span class="badge-icon">&#x2022;</span>
+                                <span class="badge-text">Title: Checking...</span>
+                            </div>
+                            <div class="badge-item" id="badge-intro">
+                                <span class="badge-icon">&#x2022;</span>
+                                <span class="badge-text">Introduction: Checking...</span>
+                            </div>
+                            <div class="badge-item" id="badge-headings">
+                                <span class="badge-icon">&#x2022;</span>
+                                <span class="badge-text">Headings: Checking...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Frequencies & Recommendations Split -->
+                    <div class="split-row">
+                        <!-- Top Keywords Table -->
+                        <div class="split-col flex-1">
+                            <div class="sub-header">
+                                <h3>Top Extracted Keywords</h3>
+                                <span class="tag-stopword">Stop words excluded</span>
+                            </div>
+                            <div class="table-wrapper">
+                                <table class="data-table" id="table-frequencies">
+                                    <thead>
+                                        <tr>
+                                            <th>Rank</th>
+                                            <th>Keyword</th>
+                                            <th>Occurrences</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbody-frequencies">
+                                        <!-- Rendered dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Recommendations -->
+                        <div class="split-col flex-1">
+                            <div class="sub-header">
+                                <h3>Educational Recommendations</h3>
+                                <span class="tag-info">Checklist Based</span>
+                            </div>
+                            <div class="recommendations-list" id="recommendations-container">
+                                <!-- Rendered dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Export Report Action -->
+                    <div class="export-banner">
+                        <div>
+                            <strong>Export SEO Report:</strong>
+                            <p class="export-note">Save your analysis results locally as plain text or structured CSV.</p>
+                        </div>
+                        <div class="export-buttons">
+                            <button type="button" class="btn btn-secondary btn-sm" id="btn-export-txt">&#x1F4E5; Download TXT Report</button>
+                            <button type="button" class="btn btn-secondary btn-sm" id="btn-export-csv">&#x1F4CA; Download Keywords CSV</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Two Columns for Algorithm Demonstration -->
+        <div class="grid-two-col">
+
+            <!-- ============================================================== -->
+            <!-- SECTION B: KEYWORD SEARCH (BINARY SEARCH) -->
+            <!-- ============================================================== -->
+            <section class="card section-card" id="section-search">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="section-number">B</span>
+                        <div>
+                            <h2>Keyword Search &bull; Binary Search</h2>
+                            <p class="section-desc">Search keywords in the alphabetically sorted list of unique terms.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="info-alert">
+                        <strong>DAA Note:</strong> Binary search requires an <em>alphabetically sorted array</em> of unique keys. Lookups run in <code>O(log n)</code> comparisons by halving the search space at each step.
+                    </div>
+
+                    <div class="search-form-row">
+                        <input type="text" id="input-binary-query" class="form-control" placeholder="Enter keyword to search (e.g. tools, defense)" />
+                        <button type="button" class="btn btn-primary" id="btn-run-binary-search">Binary Search</button>
+                    </div>
+
+                    <div id="binary-search-results" class="binary-results hidden">
+                        <div class="result-status-card" id="binary-status-card">
+                            <div id="binary-status-icon" class="status-indicator"></div>
+                            <div id="binary-status-text">
+                                <h4 id="binary-status-heading">Search Result</h4>
+                                <p id="binary-status-message"></p>
+                            </div>
+                        </div>
+
+                        <div class="binary-stats-grid">
+                            <div class="mini-stat">
+                                <span class="mini-stat-label">Total Unique Words (n)</span>
+                                <span class="mini-stat-value" id="val-binary-n">0</span>
+                            </div>
+                            <div class="mini-stat">
+                                <span class="mini-stat-label">Comparisons Made</span>
+                                <span class="mini-stat-value" id="val-binary-comparisons">0</span>
+                            </div>
+                            <div class="mini-stat">
+                                <span class="mini-stat-label">Max Comparisons &lceil;log&#8322;(n)&rceil;</span>
+                                <span class="mini-stat-value" id="val-binary-max-comp">0</span>
+                            </div>
+                            <div class="mini-stat">
+                                <span class="mini-stat-label">Found Index</span>
+                                <span class="mini-stat-value" id="val-binary-index">-</span>
+                            </div>
+                        </div>
+
+                        <!-- Search Trace Steps -->
+                        <div class="trace-box">
+                            <div class="trace-title">Interval Halving Trace (Step-by-step mid evaluations):</div>
+                            <div class="trace-steps" id="binary-trace-steps">
+                                <!-- Rendered dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ============================================================== -->
+            <!-- SECTION C: SORTING COMPARISON (MERGE SORT VS QUICK SORT) -->
+            <!-- ============================================================== -->
+            <section class="card section-card" id="section-sorting">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="section-number">C</span>
+                        <div>
+                            <h2>Sorting Comparison &bull; Merge Sort vs Quick Sort</h2>
+                            <p class="section-desc">Ranks extracted keywords by frequency (descending, with alphabetical tie-breaker).</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="info-alert">
+                        <strong>DAA Note:</strong> Both algorithms sort identical copies of the keyword frequency list. Runtime is measured over repeated trials using <code>time.perf_counter()</code>.
+                    </div>
+
+                    <div class="sort-action-row">
+                        <div class="sort-config">
+                            <label for="select-repetitions">Repetitions for high-resolution timing:</label>
+                            <select id="select-repetitions" class="form-control select-sm">
+                                <option value="50">50 runs</option>
+                                <option value="100" selected>100 runs (standard)</option>
+                                <option value="250">250 runs</option>
+                            </select>
+                        </div>
+                        <button type="button" class="btn btn-primary" id="btn-run-sort-comparison">&#x26A1; Compare Sorting Algorithms</button>
+                    </div>
+
+                    <div id="sorting-results" class="sorting-results hidden">
+                        <!-- Verification Match Banner -->
+                        <div id="sort-match-banner" class="match-banner">
+                            <span class="match-icon">&#x2713;</span>
+                            <span class="match-text" id="sort-match-text">Outputs Match: 100% Identical Ordering Confirmed</span>
+                        </div>
+
+                        <!-- Side by Side Benchmark Cards -->
+                        <div class="benchmark-cards">
+                            <div class="bench-card">
+                                <div class="bench-header">
+                                    <h4>Merge Sort</h4>
+                                    <span class="complexity-tag">O(n log n)</span>
+                                </div>
+                                <div class="bench-body">
+                                    <div class="bench-metric">
+                                        <span class="bench-metric-val" id="val-merge-time">0.00000 ms</span>
+                                        <span class="bench-metric-lbl">Average execution time</span>
+                                    </div>
+                                    <ul class="bench-details">
+                                        <li><strong>Strategy:</strong> Divide-and-Conquer</li>
+                                        <li><strong>Worst Case:</strong> O(n log n) guaranteed</li>
+                                        <li><strong>Auxiliary Space:</strong> O(n)</li>
+                                        <li><strong>Stability:</strong> Stable</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="bench-card">
+                                <div class="bench-header">
+                                    <h4>Quick Sort</h4>
+                                    <span class="complexity-tag">Avg O(n log n)</span>
+                                </div>
+                                <div class="bench-body">
+                                    <div class="bench-metric">
+                                        <span class="bench-metric-val" id="val-quick-time">0.00000 ms</span>
+                                        <span class="bench-metric-lbl">Average execution time</span>
+                                    </div>
+                                    <ul class="bench-details">
+                                        <li><strong>Strategy:</strong> Partitioning with middle pivot</li>
+                                        <li><strong>Worst Case:</strong> O(n&sup2;)</li>
+                                        <li><strong>Auxiliary Space:</strong> O(log n) call stack</li>
+                                        <li><strong>Stability:</strong> Unstable</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Summary note -->
+                        <p class="benchmark-note" id="sort-benchmark-explanation"></p>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+
+        <!-- ============================================================== -->
+        <!-- SECTION D: DRAFT COMPARISON (LONGEST COMMON SUBSEQUENCE) -->
+        <!-- ============================================================== -->
+        <section class="card section-card" id="section-drafts">
+            <div class="card-header">
+                <div class="card-title-group">
+                    <span class="section-number">D</span>
+                    <div>
+                        <h2>Draft Comparison &bull; Longest Common Subsequence (LCS)</h2>
+                        <p class="section-desc">Identifies words retained in identical relative sequence between original and revised drafts using Dynamic Programming.</p>
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <button type="button" class="btn btn-outline btn-sm" id="btn-clear-drafts">Clear Drafts</button>
+                    <button type="button" class="btn btn-primary" id="btn-compare-drafts">&#x21C4; Compare Drafts</button>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="info-alert">
+                    <strong>DAA Note:</strong> LCS uses a 2D Dynamic Programming matrix <code>dp[m+1][n+1]</code> to compute optimal subsequence length in <code>O(m &times; n)</code> time, followed by backtracking to reconstruct the retained words.
+                </div>
+
+                <div class="drafts-input-grid">
+                    <div class="form-group">
+                        <label for="input-draft-orig">Original Draft Text</label>
+                        <textarea id="input-draft-orig" class="form-control" rows="5" placeholder="Enter original article draft..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="input-draft-rev">Revised Draft Text</label>
+                        <textarea id="input-draft-rev" class="form-control" rows="5" placeholder="Enter revised article draft..."></textarea>
+                    </div>
+                </div>
+
+                <!-- LCS Results -->
+                <div id="lcs-results" class="lcs-results hidden">
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <span class="metric-label">Original Words (m)</span>
+                            <span class="metric-value" id="val-lcs-m">0</span>
+                        </div>
+                        <div class="metric-card">
+                            <span class="metric-label">Revised Words (n)</span>
+                            <span class="metric-value" id="val-lcs-n">0</span>
+                        </div>
+                        <div class="metric-card highlight-card">
+                            <span class="metric-label">LCS Length</span>
+                            <span class="metric-value" id="val-lcs-len">0</span>
+                            <span class="metric-sub">Retained in sequence</span>
+                        </div>
+                        <div class="metric-card">
+                            <span class="metric-label">Retained from Draft 1</span>
+                            <span class="metric-value" id="val-lcs-ret-orig">0%</span>
+                        </div>
+                        <div class="metric-card">
+                            <span class="metric-label">Retained in Draft 2</span>
+                            <span class="metric-value" id="val-lcs-ret-rev">0%</span>
+                        </div>
+                        <div class="metric-card">
+                            <span class="metric-label">Words Modified/Replaced</span>
+                            <span class="metric-value" id="val-lcs-diff">~0</span>
+                        </div>
+                    </div>
+
+                    <div class="retained-words-box">
+                        <h4>Ordered Retained Words (LCS Sequence):</h4>
+                        <div class="retained-words-list" id="lcs-words-container">
+                            <!-- Rendered dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="disclaimer-callout">
+                        <strong>Academic Clarification:</strong> Longest Common Subsequence is a discrete structural algorithm measuring preserved word tokens in sequence. It does not evaluate semantic meaning, synonyms, or paraphrasing.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================== -->
+        <!-- SECTION E: ACADEMIC SPECIFICATIONS & ABOUT -->
+        <!-- ============================================================== -->
+        <footer class="app-footer">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>About SEO Word Optimizer</h4>
+                    <p>Built as a B.Tech Design & Analysis of Algorithms (DAA) mini-project. It showcases practical applications of core computer science algorithms on user-provided article text without external APIs or black-box libraries.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>DAA Algorithmic Scope</h4>
+                    <ul>
+                        <li><strong>Binary Search:</strong> O(log n) search on sorted unique dictionary.</li>
+                        <li><strong>Merge Sort:</strong> Guaranteed O(n log n) stable frequency sorting.</li>
+                        <li><strong>Quick Sort:</strong> Average O(n log n) in-memory partition sorting.</li>
+                        <li><strong>LCS (DP):</strong> O(m &times; n) 2D memoized token sequence alignment.</li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Honest Limitations</h4>
+                    <p>Operates strictly locally on user-supplied text. Does not crawl external websites, predict Google SERP rankings, or access proprietary search volume data. All metrics and timings are measured live.</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                &copy; 2026 SEO Word Optimizer &bull; Academic DAA Mini-Project &bull; Python Flask &amp; Vanilla JavaScript
+            </div>
+        </footer>
+
+    </main>
+
+    <!-- Frontend Script -->
+    <script src="/static/app.js"></script>
+</body>
+</html>
